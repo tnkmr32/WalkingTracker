@@ -1,3 +1,7 @@
+---
+description: GitHubにIssueを作成する。引数にタイトルを渡せる（例: /create-issue タイトル名）
+---
+
 GitHubにIssueを作成するスキルです。
 
 ## 使い方
