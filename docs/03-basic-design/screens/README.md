@@ -57,5 +57,5 @@ BottomNavigationBar のタブ：
 ### デザインカンプの参照方法
 
 - **ブラウザで開く** — HTML ファイルをそのまま開くと実機相当のデザインをインタラクティブに確認できます（Google Fonts CDN が必要）
-- **AI実装時に参照** — 各 HTML の `<script>` ブロックにコンポーネント構成・デザイントークンの使用箇所がコメントで記述されています。`Read` ツールで読み込むことで実装仕様として参照できます
-- **共有アセット** — `_design-assets/tokens.css`（デザイントークン）と `_design-assets/bundle.js`（コンポーネント）を参照しています。更新方法は [`_design-assets/README.md`](./_design-assets/README.md) を参照してください
+- **AI実装時に参照** — 各 HTML は静的 HTML+CSS のみで構成されています。`Read` ツールで読み込むことで実装仕様として参照できます
+- **共有アセット** — `_design-assets/tokens.css`（デザイントークン）を参照しています。更新方法は [`_design-assets/README.md`](./_design-assets/README.md) を参照してください

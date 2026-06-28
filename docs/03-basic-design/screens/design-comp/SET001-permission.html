@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!--
+  デザインカンプ: SET001 パーミッションリクエスト画面
+  画面仕様: SET001-permission.md
+  表示状態: パーミッション未付与（初回起動相当）
+  ※ JS不使用・静的HTML+CSSのみ
+-->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>SET001 パーミッション — WalkingTracker</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap");
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#E7E0D2;background-image:radial-gradient(circle at 30% 20%,rgba(140,98,57,.06),transparent 60%);padding:28px;font-family:'Roboto','Helvetica Neue',Arial,sans-serif;}
+.ic{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;font-size:24px;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}
+.ic-f{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;font-size:24px;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;}
+</style>
+</head>
+<body>
+
+<!-- PhoneFrame -->
+<div style="width:412px;height:892px;background:#0c0a08;border-radius:44px;padding:11px;box-shadow:0 30px 70px rgba(31,27,22,.34),0 4px 12px rgba(31,27,22,.22);">
+  <div style="width:100%;height:100%;background:#F8F4EA;border-radius:34px;overflow:hidden;display:flex;flex-direction:column;">
+
+    <!-- Status bar -->
+    <div style="height:34px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:relative;color:#1F1B16;font-size:13px;font-weight:500;z-index:5;">
+      <span style="font-feature-settings:'tnum';">9:41</span>
+      <div style="position:absolute;left:50%;top:9px;transform:translateX(-50%);width:84px;height:20px;background:#0c0a08;border-radius:12px;"></div>
+      <span style="display:inline-flex;gap:6px;align-items:center;">
+        <span class="ic" style="font-size:16px;">signal_cellular_alt</span>
+        <span class="ic" style="font-size:16px;">wifi</span>
+        <span class="ic-f" style="font-size:16px;">battery_full</span>
+      </span>
+    </div>
+
+    <!-- SET001 PermissionScreen -->
+    <div style="flex:1;display:flex;flex-direction:column;padding:16px 24px 28px;overflow:auto;">
+
+      <!-- Center section -->
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+
+        <!-- Hero icon -->
+        <div style="display:flex;justify-content:center;margin-bottom:20px;">
+          <span style="width:88px;height:88px;border-radius:9999px;background:#F2E5CF;color:#3E2008;display:inline-flex;align-items:center;justify-content:center;">
+            <span class="ic-f" style="font-size:46px;">hiking</span>
+          </span>
+        </div>
+
+        <!-- Title -->
+        <h1 style="margin:0 0 6px;text-align:center;font-size:24px;line-height:32px;font-weight:400;color:#1F1B16;">このアプリは以下の権限が必要です</h1>
+
+        <!-- Description -->
+        <p style="margin:0 0 28px;text-align:center;font-size:14px;line-height:20px;color:#4F4539;">歩行の記録のため、起動時に権限を確認します。</p>
+
+        <!-- Permission rows -->
+        <div style="display:flex;flex-direction:column;gap:10px;">
+
+          <div style="display:flex;align-items:flex-start;gap:14px;background:#F5EFE2;border-radius:12px;padding:14px 16px;">
+            <span class="ic" style="font-size:24px;color:#4A7A50;flex:none;margin-top:1px;">location_on</span>
+            <div>
+              <div style="font-size:14px;font-weight:500;color:#1F1B16;">位置情報（GPS取得）</div>
+              <div style="font-size:12px;line-height:16px;color:#4F4539;margin-top:2px;">歩いた経路を地図に記録します</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:14px;background:#F5EFE2;border-radius:12px;padding:14px 16px;">
+            <span class="ic" style="font-size:24px;color:#4A7A50;flex:none;margin-top:1px;">directions_walk</span>
+            <div>
+              <div style="font-size:14px;font-weight:500;color:#1F1B16;">身体活動（歩数計測）</div>
+              <div style="font-size:12px;line-height:16px;color:#4F4539;margin-top:2px;">歩数センサーから歩数を計測します</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:14px;background:#F5EFE2;border-radius:12px;padding:14px 16px;">
+            <span class="ic" style="font-size:24px;color:#4A7A50;flex:none;margin-top:1px;">notifications</span>
+            <div>
+              <div style="font-size:14px;font-weight:500;color:#1F1B16;">通知</div>
+              <div style="font-size:12px;line-height:16px;color:#4F4539;margin-top:2px;">バックグラウンド記録中の常駐通知に使用します</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Bottom: button + note -->
+      <div style="margin-top:24px;">
+        <button style="display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;height:56px;padding:0 28px;font-family:inherit;font-size:16px;font-weight:500;letter-spacing:0.1px;color:#FFFFFF;background:#8C6239;border:none;border-radius:9999px;box-shadow:0 1px 2px rgba(31,27,22,.18),0 1px 3px 1px rgba(31,27,22,.10);cursor:pointer;">
+          <span class="ic-f" style="font-size:20px;">check</span>
+          権限を許可する
+        </button>
+        <p style="margin:14px 0 0;text-align:center;font-size:12px;line-height:16px;color:#4F4539;">※ 拒否した場合、一部機能が使用できません</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
