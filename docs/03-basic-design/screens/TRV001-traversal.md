@@ -32,9 +32,9 @@
 | 項目名 | 種別 | 取得元 |
 |--------|------|--------|
 | 旧街道名 | テキスト | GeoJSON assets（`properties.name`） |
-| 踏破進捗率（プログレスバー） | プログレスバー | Room `TraversedSegment`（踏破済み距離合計） ÷ GeoJSON（`properties.total_distance_meters`） × 100 |
+| 踏破進捗率（プログレスバー） | プログレスバー | Room `TraversedSegment`（`segment_index` でGeoJSON `Feature.properties.distance_meters` を引いて距離合計） ÷ GeoJSON（`properties.total_distance_meters`） × 100 |
 | 踏破進捗率（数値） | テキスト | 同上 |
-| 踏破済み距離 | テキスト | Room `TraversedSegment`（踏破済みセグメントの距離合計） |
+| 踏破済み距離 | テキスト | Room `TraversedSegment`（`segment_index` でGeoJSON `Feature.properties.distance_meters` を引いて合計） |
 | 全体距離 | テキスト | GeoJSON assets（`properties.total_distance_meters`） |
 | あと〇〇km | テキスト | 全体距離 − 踏破済み距離 |
 | 地図エリア（未踏区間） | 地図（OSMDroid） | GeoJSON assets（全セグメント） |

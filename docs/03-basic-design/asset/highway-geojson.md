@@ -32,7 +32,8 @@
     {
       "type": "Feature",
       "properties": {
-        "segment_index": 0
+        "segment_index": 0,
+        "distance_meters": 2300
       },
       "geometry": {
         "type": "LineString",
@@ -63,6 +64,7 @@
 | フィールド | 型 | 必須 | 説明 |
 |-----------|-----|------|------|
 | `segment_index` | `Number` | ✓ | セグメントの連番（0始まり）。`traversed_segment.segment_index` と対応 |
+| `distance_meters` | `Number` | ✓ | セグメントの距離（メートル）。踏破済み距離の合計算出に使用 |
 
 ### Feature.geometry
 
