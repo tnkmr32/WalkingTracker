@@ -6,12 +6,12 @@
 
 ## 概要
 
-| 項目 | 内容 |
-|------|------|
-| 画面ID | HIS002 |
-| クラス名 | `SessionDetailScreen` |
-| 遷移元 | [HIS001 記録一覧画面](./HIS001-history.md)（セッションをタップ） |
-| 目的 | 特定の歩行セッションの詳細と軌跡を表示する |
+| 項目     | 内容                                                             |
+| -------- | ---------------------------------------------------------------- |
+| 画面ID   | HIS002                                                           |
+| クラス名 | `SessionDetailScreen`                                            |
+| 遷移元   | [HIS001 記録一覧画面](./HIS001-history.md)（セッションをタップ） |
+| 目的     | 特定の歩行セッションの詳細と軌跡を表示する                       |
 
 ---
 
@@ -19,9 +19,9 @@
 
 ### 受信パラメータ
 
-| パラメータ名 | 型 | 説明 | 送信元 |
-|-------------|-----|------|--------|
-| `sessionId` | `Long` | 表示するセッションのID | HIS001 記録一覧画面 |
+| パラメータ名 | 型     | 説明                   | 送信元              |
+| ------------ | ------ | ---------------------- | ------------------- |
+| `sessionId`  | `Long` | 表示するセッションのID | HIS001 記録一覧画面 |
 
 ### 送信パラメータ
 
@@ -31,15 +31,24 @@
 
 ## 画面項目一覧
 
-| 項目名 | 種別 | 取得元 |
-|--------|------|--------|
-| タイトル（日付） | テキスト | Room `WalkSession.started_at`（`sessionId` で取得、yyyy/MM/dd（E） にフォーマット） |
-| 地図エリア（セッション軌跡） | 地図（OSMDroid） | Room `TrackPoint`（`session_id = sessionId` でフィルタ） |
-| 歩数 | テキスト | Room `WalkSession.steps`（`sessionId` で取得） |
-| 距離 | テキスト | Room `WalkSession.distance_meters`（`sessionId` で取得） |
-| 所要時間 | テキスト | Room `WalkSession.finished_at` − `started_at`（`sessionId` で取得） |
-| 開始時刻 | テキスト | Room `WalkSession.started_at`（HH:mm にフォーマット） |
-| 終了時刻 | テキスト | Room `WalkSession.finished_at`（HH:mm にフォーマット） |
+| 項目名                       | 種別             | 取得元                                                                              |
+| ---------------------------- | ---------------- | ----------------------------------------------------------------------------------- |
+| タイトル（日付）             | テキスト         | Room `WalkSession.started_at`（`sessionId` で取得、yyyy/MM/dd（E） にフォーマット） |
+| 地図エリア（セッション軌跡） | 地図（OSMDroid） | Room `TrackPoint`（`session_id = sessionId` でフィルタ）                            |
+| 歩数                         | テキスト         | Room `WalkSession.steps`（`sessionId` で取得）                                      |
+| 距離                         | テキスト         | Room `WalkSession.distance_meters`（`sessionId` で取得）                            |
+| 所要時間                     | テキスト         | Room `WalkSession.finished_at` − `started_at`（`sessionId` で取得）                 |
+| 開始時刻                     | テキスト         | Room `WalkSession.started_at`（HH:mm にフォーマット）                               |
+| 終了時刻                     | テキスト         | Room `WalkSession.finished_at`（HH:mm にフォーマット）                              |
+
+---
+
+## デザインカンプ
+
+> **Note**: VS Codeのマークダウンプレビューではiframe内のJavaScriptが実行されません。  
+> 下記のリンクから直接ブラウザで開いてください。
+
+**[📱 デザインカンプを表示（ブラウザで開く）](./HIS002-session-detail.html)**
 
 ---
 
@@ -65,8 +74,8 @@
 
 ## 状態と動作
 
-| 状態 | 動作 |
-|------|------|
-| 通常 | 指定セッションの TrackPoint を取得して地図上にポリラインを描画 |
-| GPS 未記録 | 地図エリアを非表示にして「GPS データなし」を表示 |
-| Backボタン | [HIS001 記録一覧画面](./HIS001-history.md) へ戻る |
+| 状態       | 動作                                                           |
+| ---------- | -------------------------------------------------------------- |
+| 通常       | 指定セッションの TrackPoint を取得して地図上にポリラインを描画 |
+| GPS 未記録 | 地図エリアを非表示にして「GPS データなし」を表示               |
+| Backボタン | [HIS001 記録一覧画面](./HIS001-history.md) へ戻る              |

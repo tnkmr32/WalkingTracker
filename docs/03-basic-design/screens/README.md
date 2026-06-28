@@ -46,10 +46,16 @@ BottomNavigationBar のタブ：
 
 ## 各画面ドキュメント
 
-| 画面ID | ファイル | 画面名 |
-|--------|---------|--------|
-| SET001 | [SET001-permission.md](./SET001-permission.md) | パーミッションリクエスト画面 |
-| WLK001 | [WLK001-recording.md](./WLK001-recording.md) | 記録画面 |
-| TRV001 | [TRV001-traversal.md](./TRV001-traversal.md) | 踏破進捗画面 |
-| HIS001 | [HIS001-history.md](./HIS001-history.md) | 記録一覧画面 |
-| HIS002 | [HIS002-session-detail.md](./HIS002-session-detail.md) | 記録詳細画面 |
+| 画面ID | 仕様書 | デザインカンプ | 画面名 |
+|--------|--------|--------------|--------|
+| SET001 | [SET001-permission.md](./SET001-permission.md) | [SET001-permission.html](./SET001-permission.html) | パーミッションリクエスト画面 |
+| WLK001 | [WLK001-recording.md](./WLK001-recording.md) | [WLK001-recording.html](./WLK001-recording.html) | 記録画面（待機中・記録中・GPS取得中を切替表示） |
+| TRV001 | [TRV001-traversal.md](./TRV001-traversal.md) | [TRV001-traversal.html](./TRV001-traversal.html) | 踏破進捗画面 |
+| HIS001 | [HIS001-history.md](./HIS001-history.md) | [HIS001-history.html](./HIS001-history.html) | 記録一覧画面（カードクリックで HIS002 へ遷移） |
+| HIS002 | [HIS002-session-detail.md](./HIS002-session-detail.md) | [HIS002-session-detail.html](./HIS002-session-detail.html) | 記録詳細画面 |
+
+### デザインカンプの参照方法
+
+- **ブラウザで開く** — HTML ファイルをそのまま開くと実機相当のデザインをインタラクティブに確認できます（Google Fonts CDN が必要）
+- **AI実装時に参照** — 各 HTML の `<script>` ブロックにコンポーネント構成・デザイントークンの使用箇所がコメントで記述されています。`Read` ツールで読み込むことで実装仕様として参照できます
+- **共有アセット** — `_design-assets/tokens.css`（デザイントークン）と `_design-assets/bundle.js`（コンポーネント）を参照しています。更新方法は [`_design-assets/README.md`](./_design-assets/README.md) を参照してください
