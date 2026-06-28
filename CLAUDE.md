@@ -1,52 +1,52 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このファイルは、リポジトリ内のコードを操作する際に Claude Code (claude.ai/code) へ向けたガイダンスを提供します。
 
-## Build & Run
+## ビルドと実行
 
 ```bash
-# Build debug APK
+# デバッグ APK をビルド
 ./gradlew assembleDebug
 
-# Install on connected device/emulator
+# 接続済みデバイス/エミュレーターにインストール
 ./gradlew installDebug
 
-# Run unit tests
+# ユニットテストを実行
 ./gradlew test
 
-# Run a single unit test class
+# 特定のユニットテストクラスを実行
 ./gradlew test --tests "com.example.walkingtracker.ExampleUnitTest"
 
-# Run instrumented (on-device) tests
+# インストルメンテッドテスト（実機）を実行
 ./gradlew connectedAndroidTest
 
 # Lint
 ./gradlew lint
 ```
 
-## Project Overview
+## プロジェクト概要
 
-Single-module Android app (`app/`) using **Jetpack Compose** with Material3. The project is at the blank-slate stage — `MainActivity` renders a placeholder "Hello Android" screen. The intended feature is a walking/step tracker.
+**Jetpack Compose** + Material3 を使ったシングルモジュール Android アプリ（`app/`）。現時点では白紙の状態で、`MainActivity` はプレースホルダーの "Hello Android" 画面を表示するのみ。目標機能は歩行・歩数トラッカー。
 
-- **minSdk 33** (Android 13), **targetSdk 36**
-- **AGP 9.1.1**, **Kotlin 2.2.10**, **Compose BOM 2024.09.00**
-- All dependency versions are centralized in `gradle/libs.versions.toml`
+- **minSdk 33**（Android 13）、**targetSdk 36**
+- **AGP 9.1.1**、**Kotlin 2.2.10**、**Compose BOM 2024.09.00**
+- 依存関係のバージョンはすべて `gradle/libs.versions.toml` で一元管理
 
-## Architecture
+## アーキテクチャ
 
-The app uses a single `ComponentActivity` with Compose as the UI layer. The theme (`ui/theme/`) supports dynamic color (Android 12+), dark mode, and fallback static color schemes.
+アプリは単一の `ComponentActivity` を持ち、Compose が UI レイヤーを担う。テーマ（`ui/theme/`）はダイナミックカラー（Android 12+）、ダークモード、フォールバック用の静的カラースキームに対応済み。
 
-When adding features, the expected pattern for this type of app is:
-- `ViewModel` (via `lifecycle-viewmodel-compose`) for state — the dependency is not yet added
-- `STATE_PERMISSION` / `ACTIVITY_RECOGNITION` manifest permission for step counting via `SensorManager` or `HealthConnect`
-- Compose `@Composable` screens wired up through `NavHost` if multiple screens are needed
+機能追加時に想定されるパターン：
+- 状態管理には `ViewModel`（`lifecycle-viewmodel-compose` 経由）— 依存関係はまだ未追加
+- 歩数計測には `SensorManager` または Health Connect を使用し、`ACTIVITY_RECOGNITION` パーミッションをマニフェストに追加
+- 複数画面が必要な場合は `NavHost` で Compose 画面を接続
 
-## Key Files
+## 主要ファイル
 
-| File | Purpose |
+| ファイル | 役割 |
 |---|---|
-| `app/src/main/java/…/MainActivity.kt` | Entry point; replace placeholder content here |
-| `app/src/main/AndroidManifest.xml` | Add permissions (e.g., `ACTIVITY_RECOGNITION`) here |
-| `app/src/main/java/…/ui/theme/` | Theme, colors, typography |
-| `gradle/libs.versions.toml` | All dependency and plugin versions |
-| `app/build.gradle.kts` | Module-level build config |
+| `app/src/main/java/…/MainActivity.kt` | エントリーポイント。プレースホルダーをここで置き換える |
+| `app/src/main/AndroidManifest.xml` | パーミッション（例: `ACTIVITY_RECOGNITION`）の追加先 |
+| `app/src/main/java/…/ui/theme/` | テーマ・カラー・タイポグラフィ |
+| `gradle/libs.versions.toml` | 全依存関係とプラグインのバージョン管理 |
+| `app/build.gradle.kts` | モジュールレベルのビルド設定 |
