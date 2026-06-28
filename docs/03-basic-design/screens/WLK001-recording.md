@@ -34,7 +34,7 @@
 | 項目名 | 種別 | 取得元 |
 |--------|------|--------|
 | 地図エリア（現在地マーカー） | 地図（OSMDroid） | `FusedLocationProviderClient`（現在地） |
-| 地図エリア（過去の全軌跡） | 地図（OSMDroid） | Room `TrackPoint`（全セッション分） |
+| 地図エリア（過去の全軌跡） | 地図（OSMDroid） | Room `TrackPoint`（直近90日分のセッションに絞って取得。参照：[データ設計 パフォーマンス設計](../data-design.md)） |
 | 今日の歩数 | テキスト | Room `WalkSession.steps`（当日のセッション合計） |
 | 今日の距離 | テキスト | Room `WalkSession.distance_meters`（当日のセッション合計） |
 | 記録を開始するボタン | ボタン | - |
