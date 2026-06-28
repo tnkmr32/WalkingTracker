@@ -105,6 +105,7 @@
 
 | 状態 | 動作 |
 |------|------|
+| 起動時クリーンアップ | アプリ起動時に `finished_at = NULL` の WalkSession を検出した場合、そのセッションと関連 TrackPoint を破棄してから待機中状態で表示する（参照：[業務設計 SET フロー](../business-logic-design.md)） |
 | 待機中 | 「記録を開始する」ボタン表示。ForegroundService は未起動 |
 | 記録中 | ForegroundService が起動し GPS・歩数をリアルタイム収集。歩数・距離・経過時間を1秒ごとに更新。地図上の軌跡をリアルタイム描画 |
 | 停止操作 | ForegroundService 停止。セッションを確定して DB に保存 |
