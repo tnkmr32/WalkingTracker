@@ -17,6 +17,20 @@
 
 ---
 
+## 業務別の権限要否（指摘#13対応）
+
+TRV・HIS は Room DB / GeoJSON asset を読むだけで、位置情報・歩数センサーへのライブアクセスを行わないため、権限の有無に関わらず常に開ける。権限が必要になるのは実質 WLK（記録開始時）のみ。
+
+| 業務 | 必要な権限 | 権限がない場合の挙動 |
+|------|-----------|------------------|
+| WLK（記録開始時） | `ACCESS_FINE_LOCATION` / `ACTIVITY_RECOGNITION`（任意・歩数0で継続） / `POST_NOTIFICATIONS` | 「記録を開始する」ボタン押下時に権限を再チェックし、不足があれば SET001 へ遷移する（参照：[business-logic-design.md](../03-basic-design/business-logic-design.md)） |
+| TRV | なし | 常に閲覧可能（対象外） |
+| HIS | なし | 常に閲覧可能（対象外） |
+
+記録中に権限が剥奪された場合の挙動は [error-handling.md](./error-handling.md) を参照。
+
+---
+
 ## PermissionScreen で説明する権限
 
 ユーザー操作が必要な権限のみ PermissionScreen に表示する。

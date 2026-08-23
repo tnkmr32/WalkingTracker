@@ -48,6 +48,8 @@ flowchart TD
 
 > **未完了セッションの破棄方針**：強制終了時は `steps`・`distance_meters` が途中の値のまま残るため、不正確なデータとして起動時にサイレント削除する。ユーザーへの通知は行わない。
 
+> **業務ごとの権限要否（指摘#13対応）**：権限が必要なのは WLK（記録開始時）のみ。TRV・HIS は Room DB / GeoJSON asset のみを参照するため権限に関わらず常に開ける。上記のアプリ起動時チェックに加え、WLK001 の「記録を開始する」ボタン押下時にも権限を再チェックし、不足があれば SET001 へ遷移する（設定アプリから戻った直後などに古い権限状態のままにならないための防御的チェック）。記録中に権限が剥奪された場合の挙動は [error-handling.md](../02-architecture-design/error-handling.md) を参照。参照：[permissions.md 業務別の権限要否](../02-architecture-design/permissions.md)
+
 ---
 
 ### WLK：歩行記録

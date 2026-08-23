@@ -110,6 +110,8 @@
 | 記録中 | ForegroundService が起動し GPS・歩数をリアルタイム収集。歩数・距離・経過時間を1秒ごとに更新。地図上の軌跡をリアルタイム描画 |
 | 停止操作 | ForegroundService 停止。セッションを確定して DB に保存 |
 | GPS 未取得 | 地図上の現在地マーカーを非表示。「GPS信号を取得中…」のインジケーター表示 |
+| 記録開始操作（権限不足） | 「記録を開始する」ボタン押下時に権限を再チェックし、不足があれば SET001 へ遷移する（参照：[business-logic-design.md](../business-logic-design.md)） |
+| 権限剥奪による強制停止 | 記録中に GPS 権限が剥奪された場合、ForegroundService が記録を停止しその時点までのデータで確定保存する。待機中状態に戻り、Snackbar/Dialog で「位置情報の権限が取り消されたため記録を停止しました」と「権限を再設定する」ボタン（SET001 へ遷移）を表示する（参照：[error-handling.md](../../02-architecture-design/error-handling.md)） |
 
 ---
 
