@@ -15,4 +15,4 @@
 | DB 書き込みエラー | TrackPoint / TraversedSegment 保存時 | Logcat に Error ログを出力。ユーザーへの通知なし（次の記録で再試行） |
 | DB 読み込みエラー | 一覧・詳細画面の表示時 | 「データの読み込みに失敗しました。再度お試しください」を表示し、再読み込みボタンを提供 |
 | ストレージ不足 | TrackPoint 保存時 | Logcat に Error ログを出力。セッションを強制終了し「ストレージの空き容量が不足しています」をトースト表示 |
-| GeoJSON 読み込みエラー | アプリ起動時 | アプリをクラッシュさせず、踏破進捗画面に「ルートデータの読み込みに失敗しました」を表示 |
+| GeoJSON 読み込みエラー | アプリ起動時 | アプリをクラッシュさせず、踏破進捗画面に「ルートデータの読み込みに失敗しました」を表示。以降のTRV評価（`EvaluateTraversalUseCase`）はスキップされ、WLKの記録自体には影響しない（参照：[business-logic-design.md TRV業務フロー](../03-basic-design/business-logic-design.md)） |

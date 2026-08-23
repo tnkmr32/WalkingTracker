@@ -77,10 +77,14 @@ flowchart TD
 
 WLK の ForegroundService から `EvaluateTraversalUseCase` として同期呼び出しされる（Flow/Channel等の非同期連携ではなく直接呼び出し。参照：[background-tracking.md WLK → TRV のデータ受け渡し](../02-architecture-design/background-tracking.md)）。GPS 点が取得されるたびに実行するため、TRV001 画面を表示していない間も継続する。
 
+> **GeoJSON読み込み失敗時の扱い（指摘#11/#20対応）**：GeoJSONはアプリ起動時に一度だけ読み込みキャッシュする。読み込みに失敗した場合は失敗状態もキャッシュし、以降のGPS点評価では再読み込みを試みずスキップする。WLK側のTrackPoint保存・記録自体には影響しない（踏破判定のみがスキップされる）。TRV001画面の表示は[error-handling.md](../02-architecture-design/error-handling.md)を参照。
+
 ```mermaid
 flowchart TD
-    A["GPS点を受け取る"] --> B["GeoJSON からセグメントを取得\n（初回のみ読み込み、以降はキャッシュ）"]
-    B --> C["全セグメントへの最短距離を算出"]
+    A["GPS点を受け取る"] --> B["GeoJSON からセグメントを取得\n（アプリ起動時に一度だけ読み込みキャッシュ）"]
+    B --> B2{読み込みに成功しているか？}
+    B2 -->|失敗| J(["評価をスキップして処理終了\n（TrackPoint保存自体は影響を受けず記録は継続）"])
+    B2 -->|成功| C["全セグメントへの最短距離を算出"]
     C --> D{最短距離 ≤ 50m の\nセグメントあり？}
     D -->|なし| E([処理終了])
     D -->|あり| F{DB に未登録か？}
