@@ -73,5 +73,6 @@
 
 | 状態 | 動作 |
 |------|------|
+| 初回読み込み中 | WalkSession 一覧のDB取得中は、画面中央に `CircularProgressIndicator` を表示する。取得完了後に一覧またはエンプティステートへ切り替える（参照：[motion.md](../design-system/motion.md)） |
 | 記録あり | セッション一覧をスクロール表示。タップで [HIS002 記録詳細画面](./HIS002-session-detail.md) へ遷移 |
 | 記録なし | 「まだ記録がありません。最初の一歩を記録しましょう」を表示 |
