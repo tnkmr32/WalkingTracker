@@ -1,6 +1,6 @@
 # 画面設計：パーミッションリクエスト画面
 
-参照：[画面一覧・遷移](./overview.md) / [権限設計](../../02-architecture-design/permissions.md)
+参照：[画面一覧・遷移](./README.md) / [権限設計](../../02-architecture-design/permissions.md)
 
 ---
 

@@ -41,4 +41,4 @@ TRV・HIS は Room DB / GeoJSON asset を読むだけで、位置情報・歩数
 | `ACTIVITY_RECOGNITION` | 歩数を計測するために使用します |
 | `POST_NOTIFICATIONS` | バックグラウンドで記録中であることを通知するために使用します |
 
-参照：[screens/permission.md](./screens/permission.md)
+参照：[screens/SET001-permission.md](./screens/SET001-permission.md)

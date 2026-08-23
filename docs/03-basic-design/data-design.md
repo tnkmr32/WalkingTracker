@@ -21,7 +21,7 @@
 
 | ファイル | テーブル名 |
 |---------|-----------|
-| [db/table-list.md](./db/table-list.md) | テーブル一覧・ER図 |
+| [db/README.md](./db/README.md) | テーブル一覧・ER図 |
 | [db/walk-session.md](./db/walk-session.md) | `walk_session` |
 | [db/track-point.md](./db/track-point.md) | `track_point` |
 | [db/traversed-segment.md](./db/traversed-segment.md) | `traversed_segment` |

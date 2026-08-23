@@ -1,6 +1,6 @@
 # テーブル定義：traversed_segment
 
-参照：[テーブル一覧](./table-list.md)
+参照：[テーブル一覧](./README.md)
 
 ---
 
