@@ -124,6 +124,7 @@
 | GPS 未取得 | 地図上の現在地マーカーを非表示。「GPS信号を取得中…」のインジケーター表示 |
 | 記録開始操作（権限不足） | 「記録を開始する」ボタン押下時に権限を再チェックし、不足があれば SET001 へ遷移する（参照：[business-logic-design.md](../business-logic-design.md)） |
 | 権限剥奪による強制停止 | 記録中に GPS 権限が剥奪された場合、ForegroundService が記録を停止しその時点までのデータで確定保存する。待機中状態に戻り、Snackbar/Dialog で「位置情報の権限が取り消されたため記録を停止しました」と「権限を再設定する」ボタン（SET001 へ遷移）を表示する（参照：[error-handling.md](../../02-architecture-design/error-handling.md)） |
+| 歩数センサー権限剥奪（記録継続） | 記録中に歩数センサー権限が剥奪された場合、記録は継続し歩数の更新のみ停止する（その時点の歩数で固定）。「歩数センサーの権限が取り消されたため、歩数の記録を停止しました」をSnackbarで表示する（参照：[error-handling.md](../../02-architecture-design/error-handling.md)） |
 
 ---
 

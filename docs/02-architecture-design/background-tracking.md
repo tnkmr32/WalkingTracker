@@ -45,6 +45,12 @@ TYPE_STEP_COUNTERはハードウェアセンサーによるカウントのため
   └─→ ForegroundService 停止・セッション確定
 ```
 
+## 権限の検知手段（指摘#15対応）
+
+GPS取得ループ（5秒ごと）の先頭で `ContextCompat.checkSelfPermission()` により `ACCESS_FINE_LOCATION`・`ACTIVITY_RECOGNITION` の状態を毎回確認する（プロアクティブ確認を主手段とする）。`SecurityException`は権限剥奪時に必ず投げられる保証がなく検知手段として頼りにくいため、これが発生した場合も同様に扱うフォールバックと位置づける。
+
+権限ごとの剥奪時の挙動は [error-handling.md](./error-handling.md) を参照。
+
 ## WLK → TRV のデータ受け渡し（指摘#12対応）
 
 ForegroundService は GPS 取得のたびに `RecordTrackPointUseCase` と `EvaluateTraversalUseCase` を**同一 Coroutine 内で同期的に順次呼び出す**（Flow/Channel による非同期のPub/Sub連携は採用しない）。
