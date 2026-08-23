@@ -25,6 +25,7 @@ flowchart TD
     SET001["SET001\nパーミッションリクエスト画面"]
     SET001 -->|権限未付与のとき先行表示| SET001
     SET001 -->|全権限付与| Main["メイン画面\n（BottomNavigationBar）"]
+    SET001 -->|Back（ナビゲーションルートのためシステム標準の挙動＝アプリ終了）| End([アプリ終了])
 
     Main --> WLK001["WLK001\n記録画面"]
     Main --> TRV001["TRV001\n踏破進捗画面"]
