@@ -88,6 +88,8 @@ Presentation層  →  UseCase層  →  Entity層
 | UseCase層      | ビジネスロジック。歩数・軌跡の記録や踏破進捗の算出などを担う         |
 | Entity層       | データの永続化。RoomによるDB操作とassetsのルートデータ読み込みを担う |
 
+`base層`（ForegroundService）は、Presentation層と同様にUseCase層を呼び出してよい。ただし業務ロジックそのものは持たず、UseCaseへの委譲のみを行う（例：GPS取得のたびに `RecordTrackPointUseCase` → `EvaluateTraversalUseCase` を順に呼び出す。参照：[background-tracking.md](./background-tracking.md)）。
+
 ---
 
 ## ディレクトリ構成

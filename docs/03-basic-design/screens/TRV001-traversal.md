@@ -87,4 +87,6 @@
 
 GPS 軌跡が旧街道のセグメントから 50m 以内を通過した区間を踏破済みとして記録する。
 
-参照：[highway-traversal.md](../../02-architecture-design/highway-traversal.md)
+判定処理自体は WLK の ForegroundService から `EvaluateTraversalUseCase` として実行され、TRV001 画面の表示有無とは独立して継続する。本画面は Room `TraversedSegment` を購読して結果を表示するのみで、判定処理には関与しない。
+
+参照：[highway-traversal.md](../../02-architecture-design/highway-traversal.md) / [background-tracking.md WLK → TRV のデータ受け渡し](../../02-architecture-design/background-tracking.md)

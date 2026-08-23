@@ -58,8 +58,8 @@ flowchart TD
     B --> C["ForegroundService 起動\n常駐通知を表示（記録中・経過時間）"]
     C --> D["GPSを5秒ごとに取得"]
     C --> E["歩数センサーを監視"]
-    D -->|取得成功| F["TrackPoint を DB に保存"]
-    F --> G["TRV（踏破判定）へ渡す"]
+    D -->|取得成功| F["RecordTrackPointUseCase\nTrackPoint を DB に保存"]
+    F --> G["EvaluateTraversalUseCase を同期呼び出し\n（TRV踏破判定）"]
     D -->|取得失敗| H["Warning ログを出力\n次回取得まで待機"]
     E --> I["差分を歩数として更新"]
     C --> J["記録を停止するボタン押下"]
@@ -72,7 +72,7 @@ flowchart TD
 
 ### TRV：踏破管理
 
-WLK から GPS 点が提供されるたびに実行する。
+WLK の ForegroundService から `EvaluateTraversalUseCase` として同期呼び出しされる（Flow/Channel等の非同期連携ではなく直接呼び出し。参照：[background-tracking.md WLK → TRV のデータ受け渡し](../02-architecture-design/background-tracking.md)）。GPS 点が取得されるたびに実行するため、TRV001 画面を表示していない間も継続する。
 
 ```mermaid
 flowchart TD
