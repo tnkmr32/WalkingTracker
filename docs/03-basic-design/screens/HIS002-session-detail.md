@@ -78,4 +78,5 @@
 | 初回読み込み中 | TrackPoint 取得・地図読み込み中は、画面中央に `CircularProgressIndicator` を表示する。取得完了後にセッション詳細コンテンツへ切り替える（参照：[motion.md](../design-system/motion.md)） |
 | 通常       | 指定セッションの TrackPoint を取得して地図上にポリラインを描画 |
 | GPS 未記録 | 地図エリアを非表示にして「GPS データなし」を表示               |
+| DB読み込みエラー（指摘#8対応） | TrackPoint（またはWalkSession）の取得に失敗した場合、「データの読み込みに失敗しました。再度お試しください」を表示し、再読み込みボタンを提供する（参照：[error-handling.md](../../02-architecture-design/error-handling.md)） |
 | Backボタン | [HIS001 記録一覧画面](./HIS001-history.md) へ戻る              |

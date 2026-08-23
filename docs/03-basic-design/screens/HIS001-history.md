@@ -76,3 +76,4 @@
 | 初回読み込み中 | WalkSession 一覧のDB取得中は、画面中央に `CircularProgressIndicator` を表示する。取得完了後に一覧またはエンプティステートへ切り替える（参照：[motion.md](../design-system/motion.md)） |
 | 記録あり | セッション一覧をスクロール表示。タップで [HIS002 記録詳細画面](./HIS002-session-detail.md) へ遷移 |
 | 記録なし | 「まだ記録がありません。最初の一歩を記録しましょう」を表示 |
+| DB読み込みエラー（指摘#8対応） | WalkSession一覧の取得に失敗した場合、「データの読み込みに失敗しました。再度お試しください」を表示し、再読み込みボタンを提供する（参照：[error-handling.md](../../02-architecture-design/error-handling.md)） |
