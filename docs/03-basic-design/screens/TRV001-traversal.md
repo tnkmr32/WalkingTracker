@@ -1,0 +1,94 @@
+# 画面設計：踏破進捗画面
+
+参照：[画面一覧・遷移](./README.md)
+
+---
+
+## 概要
+
+| 項目 | 内容 |
+|------|------|
+| 画面ID | TRV001 |
+| クラス名 | `TraversalScreen` |
+| BottomNavタブ | 踏破 |
+| 目的 | 旧街道の踏破進捗率と踏破済み区間の地図表示 |
+
+---
+
+## 画面間パラメータ一覧
+
+### 受信パラメータ
+
+なし（BottomNavigationBar のタブから遷移）
+
+### 送信パラメータ
+
+なし
+
+---
+
+## 画面項目一覧
+
+| 項目名 | 種別 | 取得元 |
+|--------|------|--------|
+| 旧街道名 | テキスト | GeoJSON assets（`properties.name`） |
+| 踏破進捗率（プログレスバー） | プログレスバー | Room `TraversedSegment`（`segment_index` でGeoJSON `Feature.properties.distance_meters` を引いて距離合計） ÷ GeoJSON（`properties.total_distance_meters`） × 100 |
+| 踏破進捗率（数値） | テキスト | 同上 |
+| 踏破済み距離 | テキスト | Room `TraversedSegment`（`segment_index` でGeoJSON `Feature.properties.distance_meters` を引いて合計） |
+| 全体距離 | テキスト | GeoJSON assets（`properties.total_distance_meters`） |
+| あと〇〇km | テキスト | 全体距離 − 踏破済み距離 |
+| 地図エリア（未踏区間） | 地図（OSMDroid） | GeoJSON assets（全セグメント） |
+| 地図エリア（踏破済み区間） | 地図（OSMDroid） | Room `TraversedSegment`（`highway_id` + `segment_index` でセグメントを特定） |
+
+---
+
+## ワイヤーフレーム
+
+```
+┌─────────────────────────────┐
+│  東海道                      │
+│                             │
+│  踏破進捗                    │
+│  ████████░░░░░░░░░  42%     │
+│                             │
+│  踏破済み    210 km          │
+│  全体        500 km          │
+│  あと        290 km          │
+│─────────────────────────────│
+│  [地図エリア (OSMDroid)]     │
+│  ・踏破済み区間（赤色の線）  │
+│  ・未踏区間（グレーの線）    │
+│                             │
+│                             │
+└─────────────────────────────┘
+```
+
+---
+
+## デザインカンプ
+
+> 下記のリンク先のファイルをブラウザで開いてください。
+
+**[TRV001-traversal.html](./design-comp/TRV001-traversal.html)**
+
+---
+
+## 状態と動作
+
+| 状態 | 動作 |
+|------|------|
+| 初回読み込み中 | GeoJSON・TraversedSegment の読み込み中は、画面中央に `CircularProgressIndicator` を表示する。取得完了後に進捗コンテンツへ切り替える（参照：[motion.md](../design-system/motion.md)） |
+| 通常 | DB の踏破済みセグメントを取得して進捗率・残距離を計算して表示 |
+| 踏破 0% | 「まだ踏破済みの区間がありません。歩いて記録を始めましょう」を表示 |
+| 踏破 100% | 「旧街道を完全踏破しました！」の達成メッセージを表示 |
+| DB読み込みエラー（指摘#8対応） | TraversedSegmentの取得に失敗した場合、「データの読み込みに失敗しました。再度お試しください」を表示し、再読み込みボタンを提供する（参照：[error-handling.md](../../02-architecture-design/error-handling.md)） |
+
+---
+
+## 踏破判定
+
+GPS 軌跡が旧街道のセグメントから 50m 以内を通過した区間を踏破済みとして記録する。
+
+判定処理自体は WLK の ForegroundService から `EvaluateTraversalUseCase` として実行され、TRV001 画面の表示有無とは独立して継続する。本画面は Room `TraversedSegment` を購読して結果を表示するのみで、判定処理には関与しない。
+
+参照：[highway-traversal.md](../../02-architecture-design/highway-traversal.md) / [background-tracking.md WLK → TRV のデータ受け渡し](../../02-architecture-design/background-tracking.md)

@@ -1,0 +1,137 @@
+# 画面設計：記録画面
+
+参照：[画面一覧・遷移](./README.md)
+
+---
+
+## 概要
+
+| 項目 | 内容 |
+|------|------|
+| 画面ID | WLK001 |
+| クラス名 | `RecordingScreen` |
+| BottomNavタブ | 記録 |
+| 目的 | 歩行セッションの開始・停止と、セッション中のリアルタイム情報表示 |
+
+---
+
+## 画面間パラメータ一覧
+
+### 受信パラメータ
+
+なし（BottomNavigationBar のタブから遷移）
+
+### 送信パラメータ
+
+なし
+
+---
+
+## 画面項目一覧
+
+### 待機中
+
+| 項目名 | 種別 | 取得元 |
+|--------|------|--------|
+| 地図エリア（現在地マーカー） | 地図（OSMDroid） | `FusedLocationProviderClient`（現在地） |
+| 地図エリア（過去の全軌跡） | 地図（OSMDroid） | Room `TrackPoint`（直近90日分のセッションに絞って取得。参照：[データ設計 パフォーマンス設計](../data-design.md)） |
+| 今日の歩数 | テキスト | Room `WalkSession.steps`（当日のセッション合計） |
+| 今日の距離 | テキスト | Room `WalkSession.distance_meters`（当日のセッション合計） |
+| 記録を開始するボタン | ボタン | - |
+
+### 記録中
+
+| 項目名 | 種別 | 取得元 |
+|--------|------|--------|
+| 地図エリア（現在地マーカー） | 地図（OSMDroid） | ForegroundService → `FusedLocationProviderClient` |
+| 地図エリア（現在セッションの軌跡） | 地図（OSMDroid） | ForegroundService → Room `TrackPoint`（現在セッション分） |
+| 歩数 | テキスト | ForegroundService → `SensorManager`（`TYPE_STEP_COUNTER` の差分） |
+| 距離 | テキスト | ForegroundService → `TrackPoint` 間距離の累計 |
+| 経過時間 | テキスト | ForegroundService 起動時刻からの経過時間 |
+| 記録を停止するボタン | ボタン | - |
+
+---
+
+## DB書き込み操作（指摘#9対応）
+
+| タイミング | 操作 | 対象 | 内容 |
+|---|---|---|---|
+| 記録開始ボタン押下時 | INSERT | `WalkSession` | `started_at`=現在時刻、`finished_at`=NULL、`steps`=0、`distance_meters`=0.0 で新規作成。以降このセッションIDに紐づけて記録する（強制終了時の未完了セッション検出に必要。参照：[業務設計 未完了セッションの破棄方針](../business-logic-design.md)） |
+| GPS取得成功時（5秒ごと、記録中） | INSERT | `TrackPoint` | `session_id`・`latitude`・`longitude`・`recorded_at` を保存（`RecordTrackPointUseCase`経由。参照：[background-tracking.md](../../02-architecture-design/background-tracking.md)） |
+| 歩数差分更新時（記録中） | なし（メモリ保持のみ） | - | `steps`・`distance_meters` は ForegroundService 内で保持し、都度DBへは書き込まない。強制終了時は破棄方針（指摘#2）によりセッションごと破棄されるため、中間状態の永続化は不要 |
+| 記録停止ボタン押下時 | UPDATE | `WalkSession` | 開始時にINSERT済みのレコードを `finished_at`・`steps`・`distance_meters` で確定更新する |
+
+---
+
+## ワイヤーフレーム（待機中）
+
+```
+┌─────────────────────────────┐
+│  [地図エリア (OSMDroid)]     │
+│  ・現在地マーカー            │
+│  ・過去の全セッション軌跡    │
+│    （薄いグレーで重ね表示）  │
+│                             │
+│─────────────────────────────│
+│  今日の歩数   0 歩           │
+│  今日の距離   0.0 km         │
+│─────────────────────────────│
+│  ┌─────────────────────────┐ │
+│  │      記録を開始する      │ │
+│  └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+## ワイヤーフレーム（記録中）
+
+```
+┌─────────────────────────────┐
+│  [地図エリア (OSMDroid)]     │
+│  ・現在地マーカー（更新中）  │
+│  ・現在セッションの軌跡      │
+│    （青色の線）              │
+│                             │
+│─────────────────────────────│
+│  歩数    1,234 歩            │
+│  距離      0.9 km            │
+│  経過    00:12:34            │
+│─────────────────────────────│
+│  ┌─────────────────────────┐ │
+│  │      記録を停止する      │ │
+│  └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+---
+
+## デザインカンプ
+
+> 下記のリンク先のファイルをブラウザで開いてください。
+
+**[WLK001-recording.html](./design-comp/WLK001-recording.html)**
+
+---
+
+## 状態と動作
+
+| 状態 | 動作 |
+|------|------|
+| 起動時クリーンアップ | アプリ起動時に `finished_at = NULL` の WalkSession を検出した場合、そのセッションと関連 TrackPoint を破棄してから待機中状態で表示する（参照：[業務設計 SET フロー](../business-logic-design.md)） |
+| 初回読み込み中 | 過去90日軌跡・今日の歩数/距離のDB取得中は、画面中央に `CircularProgressIndicator` を表示する。取得完了後に待機中コンテンツへ切り替える（参照：[motion.md](../design-system/motion.md)） |
+| 待機中 | 「記録を開始する」ボタン表示。ForegroundService は未起動 |
+| 記録中 | ForegroundService が起動し GPS・歩数をリアルタイム収集。歩数・距離・経過時間を1秒ごとに更新。地図上の軌跡をリアルタイム描画 |
+| 停止操作 | ForegroundService 停止。セッションを確定して DB に保存 |
+| GPS 未取得 | 地図上の現在地マーカーを非表示。「GPS信号を取得中…」のインジケーター表示 |
+| 記録開始操作（権限不足） | 「記録を開始する」ボタン押下時に権限を再チェックし、不足があれば SET001 へ遷移する（参照：[business-logic-design.md](../business-logic-design.md)） |
+| 権限剥奪による強制停止 | 記録中に GPS 権限が剥奪された場合、ForegroundService が記録を停止しその時点までのデータで確定保存する。待機中状態に戻り、Snackbar/Dialog で「位置情報の権限が取り消されたため記録を停止しました」と「権限を再設定する」ボタン（SET001 へ遷移）を表示する（参照：[error-handling.md](../../02-architecture-design/error-handling.md)） |
+| 歩数センサー権限剥奪（記録継続） | 記録中に歩数センサー権限が剥奪された場合、記録は継続し歩数の更新のみ停止する（その時点の歩数で固定）。「歩数センサーの権限が取り消されたため、歩数の記録を停止しました」をSnackbarで表示する（参照：[error-handling.md](../../02-architecture-design/error-handling.md)） |
+
+---
+
+## バックグラウンド動作
+
+- 記録中に他のタブへ移動しても ForegroundService は継続動作する
+- 常駐通知には「記録中・経過時間」を表示する
+- 通知をタップすると本画面へ戻る
+
+参照：[background-tracking.md](../../02-architecture-design/background-tracking.md)

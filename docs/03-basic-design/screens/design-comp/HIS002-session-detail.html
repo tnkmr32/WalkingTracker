@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!--
+  デザインカンプ: HIS002 記録詳細画面
+  画面仕様: HIS002-session-detail.md
+  表示状態: 2026/06/27 セッション詳細
+  ※ JS不使用・静的HTML+CSSのみ
+-->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>HIS002 記録詳細 — WalkingTracker</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap");
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#E7E0D2;background-image:radial-gradient(circle at 30% 20%,rgba(140,98,57,.06),transparent 60%);padding:28px;font-family:'Roboto','Helvetica Neue',Arial,sans-serif;}
+.ic{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;font-size:24px;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}
+.ic-f{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;font-size:24px;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;}
+</style>
+</head>
+<body>
+
+<!-- PhoneFrame -->
+<div style="width:412px;height:892px;background:#0c0a08;border-radius:44px;padding:11px;box-shadow:0 30px 70px rgba(31,27,22,.34),0 4px 12px rgba(31,27,22,.22);">
+  <div style="width:100%;height:100%;background:#F8F4EA;border-radius:34px;overflow:hidden;display:flex;flex-direction:column;">
+
+    <!-- Status bar -->
+    <div style="height:34px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:relative;color:#1F1B16;font-size:13px;font-weight:500;z-index:5;">
+      <span style="font-feature-settings:'tnum';">9:41</span>
+      <div style="position:absolute;left:50%;top:9px;transform:translateX(-50%);width:84px;height:20px;background:#0c0a08;border-radius:12px;"></div>
+      <span style="display:inline-flex;gap:6px;align-items:center;">
+        <span class="ic" style="font-size:16px;">signal_cellular_alt</span>
+        <span class="ic" style="font-size:16px;">wifi</span>
+        <span class="ic-f" style="font-size:16px;">battery_full</span>
+      </span>
+    </div>
+
+    <!-- HIS002 SessionDetailScreen -->
+    <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
+
+      <!-- TopBar -->
+      <div style="height:64px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px 0 4px;background:#F8F4EA;box-shadow:0 1px 0 rgba(31,27,22,.08);">
+        <button style="width:48px;height:48px;display:inline-flex;align-items:center;justify-content:center;border:none;background:transparent;border-radius:9999px;cursor:pointer;">
+          <span class="ic" style="font-size:24px;color:#1F1B16;">arrow_back</span>
+        </button>
+        <h1 style="font-size:22px;font-weight:400;color:#1F1B16;">2026/06/27（金）</h1>
+      </div>
+
+      <!-- MapCanvas（セッション軌跡） -->
+      <div style="flex:none;height:46%;position:relative;overflow:hidden;background:#F4EFE1;">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;">
+          <!-- 等高線 -->
+          <g fill="none" stroke="#C9A36F" stroke-width="0.35" opacity="0.55">
+            <path d="M-5,20 C20,10 40,28 60,18 S95,8 110,22"/>
+            <path d="M-5,30 C20,22 42,38 60,28 S95,20 110,32"/>
+            <path d="M-5,42 C22,34 44,50 62,40 S96,32 112,44"/>
+            <path d="M-5,58 C24,50 46,64 64,54 S96,48 112,60"/>
+            <path d="M-5,72 C24,66 48,78 66,70 S96,64 112,76"/>
+            <path d="M-5,86 C24,82 48,92 66,84 S96,80 112,90"/>
+          </g>
+          <g fill="none" stroke="#BE9560" stroke-width="0.4" opacity="0.6">
+            <ellipse cx="74" cy="60" rx="13" ry="9"/>
+            <ellipse cx="74" cy="60" rx="8.5" ry="5.8"/>
+            <ellipse cx="74" cy="60" rx="4.5" ry="3"/>
+          </g>
+          <path d="M2,62 C14,54 26,60 30,72 C32,84 20,92 8,90 C-2,88 -4,70 2,62 Z" fill="#CFE3C6" opacity="0.7"/>
+          <path d="M-5,8 C18,18 30,10 44,24 C58,38 50,56 64,70 C74,80 84,80 105,92" fill="none" stroke="#9CC8DE" stroke-width="1.6" opacity="0.85" stroke-linecap="round"/>
+          <g stroke="#D8C9AE" stroke-width="0.5" opacity="0.9">
+            <line x1="36" y1="-5" x2="44" y2="105"/>
+            <line x1="-5" y1="48" x2="105" y2="40"/>
+          </g>
+          <!-- セッション軌跡（赤） -->
+          <polyline points="16,84 22,76 30,74 36,64 44,60 52,62 58,52 66,48 72,40 80,36" fill="none" stroke="#CC3333" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- 開始点 -->
+          <circle cx="16" cy="84" r="3" fill="#CC3333" opacity="0.5"/>
+          <!-- 終了点 -->
+          <circle cx="80" cy="36" r="3" fill="#CC3333" stroke="#fff" stroke-width="0.7"/>
+        </svg>
+      </div>
+
+      <!-- 詳細リスト -->
+      <div style="flex:1;overflow-y:auto;padding:8px 20px;">
+
+        <!-- 歩数 -->
+        <div style="padding:14px 0;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:16px;color:#4F4539;">歩数</span>
+          <span style="font-size:16px;font-weight:500;color:#1F1B16;font-feature-settings:'tnum';">12,345 歩</span>
+        </div>
+        <!-- Divider -->
+        <div style="height:1px;background:#D0C3B0;"></div>
+
+        <!-- 距離 -->
+        <div style="padding:14px 0;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:16px;color:#4F4539;">距離</span>
+          <span style="font-size:16px;font-weight:500;color:#1F1B16;font-feature-settings:'tnum';">8.7 km</span>
+        </div>
+        <!-- Divider -->
+        <div style="height:1px;background:#D0C3B0;"></div>
+
+        <!-- 所要時間 -->
+        <div style="padding:14px 0;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:16px;color:#4F4539;">所要時間</span>
+          <span style="font-size:16px;font-weight:500;color:#1F1B16;font-feature-settings:'tnum';">45分</span>
+        </div>
+        <!-- Divider -->
+        <div style="height:1px;background:#D0C3B0;"></div>
+
+        <!-- 開始時刻 -->
+        <div style="padding:14px 0;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:16px;color:#4F4539;">開始時刻</span>
+          <span style="font-size:16px;font-weight:500;color:#1F1B16;font-feature-settings:'tnum';">09:12</span>
+        </div>
+        <!-- Divider -->
+        <div style="height:1px;background:#D0C3B0;"></div>
+
+        <!-- 終了時刻 -->
+        <div style="padding:14px 0;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:16px;color:#4F4539;">終了時刻</span>
+          <span style="font-size:16px;font-weight:500;color:#1F1B16;font-feature-settings:'tnum';">09:57</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
