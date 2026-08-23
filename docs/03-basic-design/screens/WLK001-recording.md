@@ -52,6 +52,17 @@
 
 ---
 
+## DB書き込み操作（指摘#9対応）
+
+| タイミング | 操作 | 対象 | 内容 |
+|---|---|---|---|
+| 記録開始ボタン押下時 | INSERT | `WalkSession` | `started_at`=現在時刻、`finished_at`=NULL、`steps`=0、`distance_meters`=0.0 で新規作成。以降このセッションIDに紐づけて記録する（強制終了時の未完了セッション検出に必要。参照：[業務設計 未完了セッションの破棄方針](../business-logic-design.md)） |
+| GPS取得成功時（5秒ごと、記録中） | INSERT | `TrackPoint` | `session_id`・`latitude`・`longitude`・`recorded_at` を保存（`RecordTrackPointUseCase`経由。参照：[background-tracking.md](../../02-architecture-design/background-tracking.md)） |
+| 歩数差分更新時（記録中） | なし（メモリ保持のみ） | - | `steps`・`distance_meters` は ForegroundService 内で保持し、都度DBへは書き込まない。強制終了時は破棄方針（指摘#2）によりセッションごと破棄されるため、中間状態の永続化は不要 |
+| 記録停止ボタン押下時 | UPDATE | `WalkSession` | 開始時にINSERT済みのレコードを `finished_at`・`steps`・`distance_meters` で確定更新する |
+
+---
+
 ## ワイヤーフレーム（待機中）
 
 ```

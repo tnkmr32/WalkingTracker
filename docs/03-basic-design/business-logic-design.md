@@ -57,7 +57,8 @@ flowchart TD
 ```mermaid
 flowchart TD
     A["WLK001 記録画面"] --> B["記録を開始するボタン押下"]
-    B --> C["ForegroundService 起動\n常駐通知を表示（記録中・経過時間）"]
+    B --> B2["WalkSession を INSERT\nstarted_at=現在時刻・finished_at=NULL"]
+    B2 --> C["ForegroundService 起動\n常駐通知を表示（記録中・経過時間）"]
     C --> D["GPSを5秒ごとに取得"]
     C --> E["歩数センサーを監視"]
     D -->|取得成功| F["RecordTrackPointUseCase\nTrackPoint を DB に保存"]
