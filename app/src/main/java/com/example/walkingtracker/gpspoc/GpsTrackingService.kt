@@ -26,6 +26,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -38,7 +42,9 @@ import java.util.Locale
  *  - checkSelfPermission()ポーリングによる権限剥奪検知（検証項目6）
  *  - FOREGROUND_SERVICE_LOCATION宣言のみでのService起動・継続（検証項目7）
  *
- * Room等の永続化は行わず、取得点はLogcat出力とTrackingRepository（画面表示用）にのみ渡す。
+ * Room等の永続化は行わず、取得点はLogcat出力・TrackingRepository（画面表示用）に加えて、
+ * バッテリー消費測定時にPC接続なしで屋外検証できるよう端末のアプリ専用外部ストレージ領域にも
+ * CSV形式で書き出す（記録開始ごとに新規ファイル）。
  * 本実装への統合は行わない使い捨てクラス。
  */
 class GpsTrackingService : Service() {
@@ -66,6 +72,10 @@ class GpsTrackingService : Service() {
     private lateinit var fusedLocationClient: com.google.android.gms.location.FusedLocationProviderClient
     private var lastLocationElapsedRealtimeMillis: Long? = null
     private val timeFormatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    private val fileNameTimestampFormatter = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+    private val fileLineTimestampFormatter =
+        SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+    private var logWriter: BufferedWriter? = null
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
@@ -96,6 +106,7 @@ class GpsTrackingService : Service() {
     override fun onDestroy() {
         serviceJob.cancel()
         fusedLocationClient.removeLocationUpdates(locationCallback)
+        closeLogFile()
         super.onDestroy()
     }
 
@@ -118,6 +129,7 @@ class GpsTrackingService : Service() {
 
         TrackingRepository.reset(batteryStartPercent = readBatteryPercent(this))
         lastLocationElapsedRealtimeMillis = null
+        openLogFile()
 
         val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, INTERVAL_MILLIS)
             .setMinUpdateIntervalMillis(INTERVAL_MILLIS)
@@ -187,6 +199,11 @@ class GpsTrackingService : Service() {
         if (secondsSinceLast != null && secondsSinceLast >= INTERRUPTION_THRESHOLD_SECONDS) {
             Log.w(TAG, "${INTERRUPTION_THRESHOLD_SECONDS}秒以上の中断を検知 gap=${gapLabel}s")
         }
+        writeLogLine(
+            "${fileLineTimestampFormatter.format(record.timestampMillis)}," +
+                "${location.latitude},${location.longitude},${location.accuracy}," +
+                "$gapLabel,$isDelayed,$batteryPercent",
+        )
 
         updateNotification(
             "件数=${TrackingRepository.state.value.totalCount} accuracy=${location.accuracy}m",
@@ -202,8 +219,57 @@ class GpsTrackingService : Service() {
             TrackingRepository.stopRecording(statusMessage)
         }
         Log.i(TAG, "GPS記録を停止しました: $statusMessage")
+        closeLogFile()
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         stopSelf()
+    }
+
+    /**
+     * バッテリー消費測定（TC-04/05）はPC・USB接続なしで屋外実施するため、
+     * Logcatと同内容をアプリ専用外部ストレージ領域（Android/data/<pkg>/files/）にもCSVで残す。
+     * 検証終了後、USB再接続時に`adb pull`で回収する（release-build-procedure.md参照）。
+     */
+    private fun openLogFile() {
+        val dir = getExternalFilesDir(null)
+        if (dir == null) {
+            Log.w(TAG, "外部ストレージ領域が利用できないためログファイル出力をスキップします")
+            return
+        }
+        val file = File(dir, "gps_poc_log_${fileNameTimestampFormatter.format(System.currentTimeMillis())}.csv")
+        logWriter = try {
+            BufferedWriter(FileWriter(file, true)).also {
+                it.write("timestamp,lat,lng,accuracy_m,gap_s,delayed,battery_percent")
+                it.newLine()
+                it.flush()
+            }
+        } catch (e: IOException) {
+            Log.w(TAG, "ログファイルを開けませんでした: ${e.message}")
+            null
+        }
+        if (logWriter != null) {
+            Log.i(TAG, "ログファイル出力先: ${file.absolutePath}")
+        }
+    }
+
+    private fun writeLogLine(line: String) {
+        val writer = logWriter ?: return
+        try {
+            writer.write(line)
+            writer.newLine()
+            writer.flush()
+        } catch (e: IOException) {
+            Log.w(TAG, "ログファイルへの書き込みに失敗しました: ${e.message}")
+        }
+    }
+
+    private fun closeLogFile() {
+        try {
+            logWriter?.close()
+        } catch (e: IOException) {
+            Log.w(TAG, "ログファイルのクローズに失敗しました: ${e.message}")
+        } finally {
+            logWriter = null
+        }
     }
 
     private fun hasFineLocationPermission(): Boolean =

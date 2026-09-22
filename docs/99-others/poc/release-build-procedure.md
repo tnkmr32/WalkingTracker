@@ -120,6 +120,26 @@ adb logcat -s "GpsPoc:*" AndroidRuntime:E
 
 記録を開始すると5秒間隔で `point lat=... lng=... accuracy=...m gap=...s delayed=... battery=...%` が出力される。これを [gps-poc-plan.md](gps-poc-plan.md) の検証項目1・2・3・5の記録に用いる。
 
+### 7.5. PC接続なしで屋外検証する場合（CSVログファイルの利用）
+
+TC-04（Dozeモード放置）・TC-05（バッテリー消費率）は、USB給電や同一Wi-Fi前提のワイヤレスADBがバッテリー消費測定や屋外での移動を妨げるため、PC接続を伴うLogcatのリアルタイム監視は行わない。
+
+代わりに、アプリは記録開始ごとにLogcatと同内容をアプリ専用の外部ストレージ領域へCSVファイルとして書き出す（[GpsTrackingService.kt](../../../app/src/main/java/com/example/walkingtracker/gpspoc/GpsTrackingService.kt)の`openLogFile()`/`writeLogLine()`）。
+
+```
+Android/data/com.example.walkingtracker/files/gps_poc_log_<記録開始日時 yyyyMMdd_HHmmss>.csv
+```
+
+- 屋外検証中はUSBケーブル・PC接続とも不要（端末単体で完結）
+- 検証終了後（バッテリー測定は完了しているため充電の影響を気にせずよい）、USB再接続して以下でファイルを回収する
+
+```bash
+adb pull /storage/emulated/0/Android/data/com.example.walkingtracker/files/ ./gps_poc_logs/
+```
+
+- 複数の記録セッションを行った場合、上記ディレクトリに複数のCSVファイルが残るため、対象の記録開始日時（Logcatまたは画面表示で確認したファイル名。開始時に`Log.i(TAG, "ログファイル出力先: ...")`としても出力される）でファイルを特定する
+- CSVの列は `timestamp,lat,lng,accuracy_m,gap_s,delayed,battery_percent` で、表計算ソフトや`awk`/`grep`等で後から解析できる
+
 ### 8. 検証終了後にアプリを終了する
 
 「記録停止」ボタンを押してForegroundServiceを止めてからアプリを終了する。バックグラウンドで放置したまま検証を終える場合は、通知の常駐（"GPS取得PoC 記録中"）が消えたことを確認する。
