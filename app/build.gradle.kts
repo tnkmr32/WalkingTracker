@@ -23,6 +23,9 @@ android {
 
     buildTypes {
         release {
+            // GPS PoC（使い捨て検証アプリ）のため、Playストア配布は想定せず
+            // デバッグ鍵で署名する。詳細: docs/99-others/poc/release-build-procedure.md
+            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
