@@ -6,8 +6,8 @@ plugins {
 android {
     namespace = "com.example.walkingtracker"
     compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
+        version = release(37) {
+            minorApiLevel = 0
         }
     }
 
@@ -23,6 +23,9 @@ android {
 
     buildTypes {
         release {
+            // GPS PoC（使い捨て検証アプリ）のため、Playストア配布は想定せず
+            // デバッグ鍵で署名する。詳細: docs/99-others/poc/release-build-procedure.md
+            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -48,6 +51,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
