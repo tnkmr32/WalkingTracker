@@ -34,6 +34,7 @@ import androidx.core.content.ContextCompat
 import com.example.walkingtracker.gpspoc.GpsTrackingService
 import com.example.walkingtracker.gpspoc.TrackPointRecord
 import com.example.walkingtracker.gpspoc.TrackingRepository
+import com.example.walkingtracker.gpspoc.TrackingStatePrefs
 import com.example.walkingtracker.gpspoc.TrackingUiState
 import com.example.walkingtracker.ui.theme.WalkingTrackerTheme
 import java.text.SimpleDateFormat
@@ -79,6 +80,14 @@ fun GpsPocScreen(modifier: Modifier = Modifier) {
     // 画面初回表示時（Unitキーは変化しないため1回だけ）にパーミッションをリクエスト
     LaunchedEffect(Unit) {
         permissionLauncher.launch(REQUIRED_PERMISSIONS)
+    }
+
+    // 前回セッションが権限剥奪によりプロセスごと強制終了され、記録中に見せられなかったメッセージが
+    // 残っていれば、ここで一度だけ拾って表示する（詳細: TrackingStatePrefsのコメント参照）
+    LaunchedEffect(Unit) {
+        TrackingStatePrefs.consumePendingRevocationMessage(context)?.let { (atMillis, message) ->
+            TrackingRepository.markPermissionRevoked(atMillis, message)
+        }
     }
 
     // 位置情報（Fine）の許可状態をその都度確認するヘルパー

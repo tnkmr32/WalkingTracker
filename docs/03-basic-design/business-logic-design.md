@@ -46,7 +46,7 @@ flowchart TD
     E -->|二度と表示しないで拒否| G[端末の設定アプリへ誘導するボタンを表示]
 ```
 
-> **未完了セッションの破棄方針**：強制終了時は `steps`・`distance_meters` が途中の値のまま残るため、不正確なデータとして起動時にサイレント削除する。ユーザーへの通知は行わない。
+> **未完了セッションの破棄方針**：強制終了時は `steps`・`distance_meters` が途中の値のまま残るため、不正確なデータとして起動時にサイレント削除する。ユーザーへの通知は行わない。ただし、位置情報権限の剥奪が原因の強制終了であると判定できた場合（起動時に `ACCESS_FINE_LOCATION` が未許可）は例外とし、サイレント削除ではなくデータを確定保存した上でユーザーに通知する（詳細・分岐条件は[WLK001-recording.md 起動時クリーンアップ](./screens/WLK001-recording.md)、背景は[background-tracking.md 権限の検知手段](../02-architecture-design/background-tracking.md)を参照）。
 
 > **業務ごとの権限要否（指摘#13対応）**：権限が必要なのは WLK（記録開始時）のみ。TRV・HIS は Room DB / GeoJSON asset のみを参照するため権限に関わらず常に開ける。上記のアプリ起動時チェックに加え、WLK001 の「記録を開始する」ボタン押下時にも権限を再チェックし、不足があれば SET001 へ遷移する（設定アプリから戻った直後などに古い権限状態のままにならないための防御的チェック）。記録中に権限が剥奪された場合の挙動は [error-handling.md](../02-architecture-design/error-handling.md) を参照。参照：[permissions.md 業務別の権限要否](../02-architecture-design/permissions.md)
 
@@ -59,7 +59,7 @@ flowchart TD
     A["WLK001 記録画面"] --> B["記録を開始するボタン押下"]
     B --> B2["WalkSession を INSERT\nstarted_at=現在時刻・finished_at=NULL"]
     B2 --> C["ForegroundService 起動\n常駐通知を表示（記録中・経過時間）"]
-    C --> D["GPSを5秒ごとに取得"]
+    C --> D["GPSを10秒ごとに取得"]
     C --> E["歩数センサーを監視"]
     D -->|取得成功| F["RecordTrackPointUseCase\nTrackPoint を DB に保存"]
     F --> G["EvaluateTraversalUseCase を同期呼び出し\n（TRV踏破判定）"]

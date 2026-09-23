@@ -37,7 +37,7 @@ import java.util.Locale
  * GPS機能PoC（docs/99-others/poc/gps-poc-plan.md）用のForegroundService。
  *
  * 方式設計（background-tracking.md）の以下を実機検証する：
- *  - FusedLocationProviderClient / 5秒間隔 / HIGH_ACCURACY
+ *  - FusedLocationProviderClient / 10秒間隔 / HIGH_ACCURACY
  *  - ForegroundServiceによるバックグラウンド継続（検証項目2・3）
  *  - checkSelfPermission()ポーリングによる権限剥奪検知（検証項目6）
  *  - FOREGROUND_SERVICE_LOCATION宣言のみでのService起動・継続（検証項目7）
@@ -53,7 +53,7 @@ class GpsTrackingService : Service() {
         private const val TAG = "GpsPoc"
         private const val NOTIFICATION_CHANNEL_ID = "gps_poc_channel"
         private const val NOTIFICATION_ID = 1001
-        private const val INTERVAL_MILLIS = 5_000L
+        private const val INTERVAL_MILLIS = 10_000L
 
         const val ACTION_START = "com.example.walkingtracker.gpspoc.action.START"
         const val ACTION_STOP = "com.example.walkingtracker.gpspoc.action.STOP"
@@ -113,8 +113,7 @@ class GpsTrackingService : Service() {
     @SuppressLint("MissingPermission") // hasFineLocationPermission()で事前チェック済み
     private fun startTracking() {
         if (!hasFineLocationPermission()) {
-            Log.w(TAG, "ACCESS_FINE_LOCATION未許可のため開始を中止")
-            TrackingRepository.stopRecording("位置情報の権限がないため開始できませんでした")
+            handleStartWithoutPermission()
             stopSelf()
             return
         }
@@ -128,6 +127,7 @@ class GpsTrackingService : Service() {
         )
 
         TrackingRepository.reset(batteryStartPercent = readBatteryPercent(this))
+        TrackingStatePrefs.markTrackingStarted(this)
         lastLocationElapsedRealtimeMillis = null
         openLogFile()
 
@@ -145,7 +145,33 @@ class GpsTrackingService : Service() {
     }
 
     /**
-     * background-tracking.md「権限の検知手段」：GPS取得ループ（5秒ごと）の先頭で
+     * 権限なしで（再）起動された場合の分岐。
+     *
+     * 実機検証（docs/99-others/poc/verification-results-20260922_163720.md 課題3）で、記録中に
+     * 位置情報権限を「設定」から剥奪するとOSがアプリプロセスごと強制終了し、`START_STICKY`により
+     * サービスが別プロセスとして再起動されてこの分岐に到達することを確認済み。そのため「直前が
+     * 記録中のまま正常停止を経ずに終了していたか」（[TrackingStatePrefs.wasTrackingUnexpectedly]）を
+     * 併せて見ることで、単なる未許可状態での起動（権限剥奪ではない）と区別する。
+     */
+    private fun handleStartWithoutPermission() {
+        if (TrackingStatePrefs.wasTrackingUnexpectedly(this)) {
+            val lastPointMillis = TrackingStatePrefs.consumeLastPointMillis(this)
+                ?: System.currentTimeMillis()
+            val message = "記録中に位置情報の権限が取り消されたため、記録を停止しました（アプリ再起動時に検知）"
+            Log.w(
+                TAG,
+                "前回セッションが記録中のまま終了しており、現在も権限がないため権限剥奪による停止と判定しました",
+            )
+            TrackingStatePrefs.markPermissionRevoked(this, lastPointMillis, message)
+            TrackingRepository.markPermissionRevoked(lastPointMillis, message)
+        } else {
+            Log.w(TAG, "ACCESS_FINE_LOCATION未許可のため開始を中止")
+            TrackingRepository.stopRecording("位置情報の権限がないため開始できませんでした")
+        }
+    }
+
+    /**
+     * background-tracking.md「権限の検知手段」：GPS取得ループ（10秒ごと）の先頭で
      * checkSelfPermissionにより権限状態を毎回確認する（検証項目6）。
      * FusedLocationProviderClientは権限剥奪後は単にコールバックが止まるだけで
      * 例外が飛ぶ保証がないため、Location更新とは独立したポーリングで検知する。
@@ -188,6 +214,7 @@ class GpsTrackingService : Service() {
 
         val batteryPercent = readBatteryPercent(this)
         TrackingRepository.addPoint(record, batteryPercent)
+        TrackingStatePrefs.markLastPointMillis(this, record.timestampMillis)
 
         val gapLabel = secondsSinceLast?.let { String.format(Locale.getDefault(), "%.1f", it) } ?: "-"
         Log.i(
@@ -214,8 +241,11 @@ class GpsTrackingService : Service() {
         permissionPollJob?.cancel()
         fusedLocationClient.removeLocationUpdates(locationCallback)
         if (permissionRevoked) {
-            TrackingRepository.markPermissionRevoked(System.currentTimeMillis(), statusMessage.orEmpty())
+            val now = System.currentTimeMillis()
+            TrackingStatePrefs.markPermissionRevoked(this, now, statusMessage.orEmpty())
+            TrackingRepository.markPermissionRevoked(now, statusMessage.orEmpty())
         } else {
+            TrackingStatePrefs.markTrackingStoppedCleanly(this)
             TrackingRepository.stopRecording(statusMessage)
         }
         Log.i(TAG, "GPS記録を停止しました: $statusMessage")

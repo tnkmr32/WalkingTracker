@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.update
  * Room等の永続化は行わず、プロセス内メモリのみで保持する使い捨て実装。
  */
 
-/** 想定取得間隔（秒）。判定基準は 5秒±2秒 = 3〜7秒。 */
-const val EXPECTED_INTERVAL_SECONDS = 5.0
+/** 想定取得間隔（秒）。判定基準は 10秒±2秒 = 8〜12秒。 */
+const val EXPECTED_INTERVAL_SECONDS = 10.0
 const val INTERVAL_TOLERANCE_SECONDS = 2.0
 
 /** 60秒以上の中断を検知するための閾値（検証項目2）。 */
@@ -23,7 +23,7 @@ data class TrackPointRecord(
     val accuracyMeters: Float,
     /** 直前の取得からの経過秒数。初回はnull。 */
     val secondsSinceLast: Double?,
-    /** 想定間隔（5秒±2秒）から外れていた場合true。 */
+    /** 想定間隔（10秒±2秒）から外れていた場合true。 */
     val isDelayed: Boolean,
 )
 

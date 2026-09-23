@@ -57,7 +57,7 @@
 | タイミング | 操作 | 対象 | 内容 |
 |---|---|---|---|
 | 記録開始ボタン押下時 | INSERT | `WalkSession` | `started_at`=現在時刻、`finished_at`=NULL、`steps`=0、`distance_meters`=0.0 で新規作成。以降このセッションIDに紐づけて記録する（強制終了時の未完了セッション検出に必要。参照：[業務設計 未完了セッションの破棄方針](../business-logic-design.md)） |
-| GPS取得成功時（5秒ごと、記録中） | INSERT | `TrackPoint` | `session_id`・`latitude`・`longitude`・`recorded_at` を保存（`RecordTrackPointUseCase`経由。参照：[background-tracking.md](../../02-architecture-design/background-tracking.md)） |
+| GPS取得成功時（10秒ごと、記録中） | INSERT | `TrackPoint` | `session_id`・`latitude`・`longitude`・`recorded_at` を保存（`RecordTrackPointUseCase`経由。参照：[background-tracking.md](../../02-architecture-design/background-tracking.md)） |
 | 歩数差分更新時（記録中） | なし（メモリ保持のみ） | - | `steps`・`distance_meters` は ForegroundService 内で保持し、都度DBへは書き込まない。強制終了時は破棄方針（指摘#2）によりセッションごと破棄されるため、中間状態の永続化は不要 |
 | 記録停止ボタン押下時 | UPDATE | `WalkSession` | 開始時にINSERT済みのレコードを `finished_at`・`steps`・`distance_meters` で確定更新する |
 
@@ -116,7 +116,7 @@
 
 | 状態 | 動作 |
 |------|------|
-| 起動時クリーンアップ | アプリ起動時に `finished_at = NULL` の WalkSession を検出した場合、そのセッションと関連 TrackPoint を破棄してから待機中状態で表示する（参照：[業務設計 SET フロー](../business-logic-design.md)） |
+| 起動時クリーンアップ | アプリ起動時（`START_STICKY`によるForegroundServiceの自動再起動時を含む）に `finished_at = NULL` の WalkSession を検出した場合、その時点の `ACCESS_FINE_LOCATION` 許可状態で分岐する。①未許可の場合：位置情報権限の剥奪によりOSにプロセスごと強制終了された可能性が高いと判定し（[background-tracking.md 権限の検知手段・経路B](../../02-architecture-design/background-tracking.md)参照）、そのセッションに紐づく最後の `TrackPoint` の記録時刻を `finished_at` として確定保存する（データは破棄しない）。待機中状態で表示する際、Snackbar/Dialogで「位置情報の権限が取り消されたため記録を停止しました」と「権限を再設定する」ボタン（SET001 へ遷移）を表示する。②許可されている場合：原因不明の強制終了とみなし、従来通りそのセッションと関連 TrackPoint を破棄してから待機中状態で表示する（ユーザーへの通知なし。参照：[業務設計 未完了セッションの破棄方針](../business-logic-design.md)） |
 | 初回読み込み中 | 過去90日軌跡・今日の歩数/距離のDB取得中は、画面中央に `CircularProgressIndicator` を表示する。取得完了後に待機中コンテンツへ切り替える（参照：[motion.md](../design-system/motion.md)） |
 | 待機中 | 「記録を開始する」ボタン表示。ForegroundService は未起動 |
 | 記録中 | ForegroundService が起動し GPS・歩数をリアルタイム収集。歩数・距離・経過時間を1秒ごとに更新。地図上の軌跡をリアルタイム描画 |
